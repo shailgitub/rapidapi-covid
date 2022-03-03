@@ -1,1 +1,1 @@
-# rapidapi-covid
+# rapidapi-covidstates
