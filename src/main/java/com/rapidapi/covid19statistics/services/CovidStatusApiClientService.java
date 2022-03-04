@@ -6,6 +6,7 @@ import com.rapidapi.covid19statistics.dto.Covid19StatusResponse;
 import com.rapidapi.covid19statistics.entity.CovidStatus;
 import com.rapidapi.covid19statistics.repo.CovidStatusPaginationRepository;
 import com.rapidapi.covid19statistics.repo.CovidStatusRepository;
+import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -23,7 +24,7 @@ import java.util.List;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-
+@Log
 @Service
 public class CovidStatusApiClientService {
     @Value("${covidstatusapi.total.url}")
@@ -47,6 +48,7 @@ public class CovidStatusApiClientService {
     CovidStatusRepository covidStatusRepository;
 
     public ResponseEntity<String> consumeCovidApiTotalStatus() {
+        log.info("consumeCovidApiTotalStatus() started in CovidStatusApiClientService");
         HttpEntity<String> request = null;
         ResponseEntity<String> response = null;
         String result = null;
@@ -69,6 +71,7 @@ public class CovidStatusApiClientService {
     }
 
     public ResponseEntity<String> consumeCovidApiAllStatesStatus() {
+        log.info("consumeCovidApiAllStatesStatus() started in CovidStatusApiClientService");
         ResponseEntity<String> response = null;
         try {
             response = this.getCovidAllStatesStatusResponse();
@@ -79,6 +82,7 @@ public class CovidStatusApiClientService {
     }
 
     public ResponseEntity<CovidStatus> consumeCovidApiForPagination() {
+        log.info("consumeCovidApiForPagination() started in CovidStatusApiClientService");
         HttpEntity<String> request = null;
         ResponseEntity<CovidStatus> response = null;
         String result = null;
@@ -102,6 +106,7 @@ public class CovidStatusApiClientService {
     }
 
     public ResponseEntity<String> getCovidAllStatesStatusResponse() {
+        log.info("getCovidAllStatesStatusResponse() started in CovidStatusApiClientService");
         HttpEntity<String> request = null;
         ResponseEntity<String> response = null;
         String result = null;
@@ -124,6 +129,7 @@ public class CovidStatusApiClientService {
     }
 
     public Object convertJSON2POJO() throws JsonProcessingException {
+        log.info("convertJSON2POJO() started in CovidStatusApiClientService");
         ResponseEntity<String> response = null;
         Object covid19StatusResponseObj = null;
         String result = null;
@@ -140,6 +146,7 @@ public class CovidStatusApiClientService {
     }
 
     public List<CovidStatus> getCovidStatsByPages(Integer pageNo, Integer pageSize, String sortBy) {
+        log.info("getCovidStatsByPages() started in CovidStatusApiClientService");
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
         Page<CovidStatus> pagedResult = covidStatusPaginationRepository.findAll(paging);
         if (pagedResult.hasContent()) {

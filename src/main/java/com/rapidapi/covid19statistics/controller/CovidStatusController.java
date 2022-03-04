@@ -35,10 +35,6 @@ public class CovidStatusController {
     CovidStatusRepository covidStatusRepository;
     @Autowired
     CovidStatusApiClientService covidStatusApiClientService;
-	/*
-	 * @Autowired CovidStatusService covidStatusService;
-	 */
-
     Covid19StatusResponse covid19StatusResponse;
 
     public Covid19StatusResponse getCovid19StatusResponse() {
@@ -52,6 +48,7 @@ public class CovidStatusController {
     @PostMapping("/addstatus")
     public ResponseEntity<CovidStatus> addCovid19Status(@RequestBody CovidStatus covidStatus) {
         try {
+            log.info("addCovid19Status() started");
             CovidStatus _covidStatus = covidStatusRepository.save(new CovidStatus(covidStatus.getKeyId(),
                     covidStatus.getCountry(), covidStatus.getCity(),
                     covidStatus.getProvince(), covidStatus.getConfirmed(),
@@ -65,9 +62,7 @@ public class CovidStatusController {
     @GetMapping("/saveallstats")
     public ResponseEntity<String> addCovid19StatusResponse() {
         try {
-            // ArrayList<Covid19Stats> covid19StatsList = new ArrayList<>(covid19StatusResponse.getData().get(0).getCovid19Stats());
-           // Covid19StatusResponse covid19StatusResponse = null;
-            //ResponseEntity<Covid19StatusResponse> covid19StatusResponse = covidStatusApiClientService.getCovidAllStatesStatus();
+            log.info("addCovid19StatusResponse() started");
             ObjectMapper mapper = new ObjectMapper();
             mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
             covid19StatusResponse = mapper.readValue(covidStatusApiClientService.getCovidAllStatesStatusResponse().getBody(), Covid19StatusResponse.class);
@@ -76,23 +71,24 @@ public class CovidStatusController {
                 CovidStatus _covidStatus = covidStatusRepository.save(new CovidStatus(
                         covid19StatusResponse.getData().get(0).getCovid19Stats().get(index).getKeyId(),
                         covid19StatusResponse.getData().get(0).getCovid19Stats().get(index).getCountry(),
-                        (null!=covid19StatusResponse.getData().get(0).getCovid19Stats().get(index).getCity()) ? covid19StatusResponse.getData().get(0).getCovid19Stats().get(index).getCity().toString() : null,
+                        (null != covid19StatusResponse.getData().get(0).getCovid19Stats().get(index).getCity()) ? covid19StatusResponse.getData().get(0).getCovid19Stats().get(index).getCity().toString() : null,
                         covid19StatusResponse.getData().get(0).getCovid19Stats().get(index).getProvince(),
                         covid19StatusResponse.getData().get(0).getCovid19Stats().get(index).getConfirmed(),
                         covid19StatusResponse.getData().get(0).getCovid19Stats().get(index).getDeaths(),
-                        (null!=covid19StatusResponse.getData().get(0).getCovid19Stats().get(index).getRecovered()) ? Integer.parseInt(covid19StatusResponse.getData().get(0).getCovid19Stats().get(index).getRecovered().toString()) : 0,
+                        (null != covid19StatusResponse.getData().get(0).getCovid19Stats().get(index).getRecovered()) ? Integer.parseInt(covid19StatusResponse.getData().get(0).getCovid19Stats().get(index).getRecovered().toString()) : 0,
                         covid19StatusResponse.getData().get(0).getCovid19Stats().get(index).getLastUpdate()));
             }
             log.info("Data saved");
             return new ResponseEntity<>("Data Saved successfully", HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/getAllStats")
     public ResponseEntity<List<CovidStatus>> getAllStates(@RequestParam(required = false) String title) {
         try {
+            log.info("getAllStates() started");
             List<CovidStatus> covidStatusList = new ArrayList<CovidStatus>();
             covidStatusRepository.findAll().forEach(covidStatusList::add);
             if (covidStatusList.isEmpty()) {
@@ -105,12 +101,17 @@ public class CovidStatusController {
     }
 
     @GetMapping("/getStatsById/{id}")
-    public ResponseEntity<CovidStatus> getTutorialById(@PathVariable("id") long id) {
-        Optional<CovidStatus> covidStatusData = covidStatusRepository.findById(id);
-        if (covidStatusData.isPresent()) {
-            return new ResponseEntity<>(covidStatusData.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<String> getCovidStatusById(@PathVariable("id") long id) {
+        try {
+            log.info("getCovidStatusById() started");
+            Optional<CovidStatus> covidStatusData = covidStatusRepository.findById(id);
+            if (covidStatusData.isPresent()) {
+                return new ResponseEntity<String>(covidStatusData.get().toString(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -118,6 +119,7 @@ public class CovidStatusController {
     @GetMapping("/apiallstates")
     public ResponseEntity<String> getAllStatusFromCovidApi() {
         try {
+            log.info("getAllStatusFromCovidApi() started");
             return covidStatusApiClientService.consumeCovidApiAllStatesStatus();
         } catch (Exception e) {
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -127,35 +129,38 @@ public class CovidStatusController {
     //Fetch data for the entire world
     @GetMapping("/total")
     public ResponseEntity<String> getTotalStatusFromCovidApi() {
-        if (true) {
+        try {
+            log.info("getTotalStatusFromCovidApi() started");
             return covidStatusApiClientService.consumeCovidApiTotalStatus();
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/json2pojo")
     public Object jsonResponse2JavaPojo() {
         try {
+            log.info("getTotalStatusFromCovidApi() started");
             return covidStatusApiClientService.convertJSON2POJO();
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
-    @GetMapping
+
+    @GetMapping("/pagination")
     public ResponseEntity<List<CovidStatus>> getCovidStatsPagination(
             @RequestParam(defaultValue = "0") Integer pageNo,
             @RequestParam(defaultValue = "10") Integer pageSize,
-            @RequestParam(defaultValue = "id") String sortBy)
-    {
+            @RequestParam(defaultValue = "id") String sortBy) {
         List<CovidStatus> list = covidStatusApiClientService.getCovidStatsByPages(pageNo, pageSize, sortBy);
 
         return new ResponseEntity<List<CovidStatus>>(list, new HttpHeaders(), HttpStatus.OK);
     }
+
     @GetMapping("/getallBwDates/{startDate}/{endDate}")
     public List<CovidStatus> getData_between(@PathVariable(value = "startDate")
-                                                 @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+                                             @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                                              @PathVariable(value = "endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
         return covidStatusApiClientService.getAllStatsBetweenTwoDates(startDate, endDate);
     }
