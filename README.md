@@ -96,7 +96,16 @@ Database: Not required
 
 Details:Fetch data for the entire world from covid19static API
 
-### EndPoint 5: http://localhost:8080/apicovid/getallBwDates/2021-12-20/2022-03-03
+### EndPoint 5: http://localhost:8080/apicovid/pagination?pageSize=4&pageNo=2
+URL type: GET
+
+Database: Required in local machine
+
+###  RequestBody/Header: Not required to pass through client(Postman)
+
+Details: URL will fetch data from database based on pagination stratage like page size and page No, we can modify booth neumerical values accordingly
+
+### EndPoint 6: http://localhost:8080/apicovid/getallBwDates/2021-12-20/2022-03-03
 
 URL type: GET
 
@@ -106,7 +115,7 @@ Database: Required in local machine
 
 Details: URL will fetch data from database based on start date an end date
 
-### EndPoint 6: http://localhost:8080/apicovid/json2pojo
+### EndPoint 7: http://localhost:8080/apicovid/json2pojo
 
 URL type: GET
 
