@@ -76,7 +76,7 @@ RequestBody/Header: below request body can be pass(value should be changed) thro
         "lastUpdate": "2022-02-03T04:21:01.000+00:00"
     }
 
-### EndPoint 3: http://localhost:8080/apicovid/allstatesdatafromusa
+### EndPoint 3: http://localhost:8080/apicovid/apiallstates
 
 URL type: GET
 
